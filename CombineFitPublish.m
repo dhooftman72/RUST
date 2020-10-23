@@ -1,4 +1,4 @@
-function [Outputs,OutputsLinCheck] = CombineFit
+function [Outputs,OutputsLinCheck] = CombineFitPublish
 clear all
 clc
 warning off
