@@ -44,7 +44,7 @@ for yDepen = 1:maxDepen
     end
     [~,outsModel,statsModel] = anovan(ds.InBetween,{ds.Age,ds.Income,ds.Education},'sstype',3,...
         'model','linear','continuous',[1,2,3],'display', 'off',...
-        'varnames', {'Age','Income','Education'});
+        'varnames', {'Age','Income','Education'}); % STEP 1a
     outs = outsModel(1,1:7);
     outs(2,1:7) = outsAuto(2,1:7);
     outs(3:7,1:7) = outsModel(2:6,1:7);
@@ -76,7 +76,7 @@ for yDepen = 1:maxDepen
         display(List.Independent(xIndepen))
         x = Surveys.(genvarname([char(List.Independent(xIndepen))]));
         for func = 1:1:8
-            [Outs,text] = curvefitPublish(func,x,yRes);
+            [Outs,text] = curvefitPublish(func,x,yRes);  % STEP 1b
             outfac = ((xIndepen-1).*10)+(func+1);
             RegressionOuts.Independent(outfac,1) = {List.Independent(xIndepen)};
             RegressionOuts.Function(outfac,1) = {text};
