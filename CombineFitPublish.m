@@ -1,6 +1,5 @@
 function [Outputs,OutputsLinCheck] = CombineFitPublish
-clear all
-clc
+% STEP 2
 warning off
 load('Surveys.mat')
 Outputs = [];
@@ -52,7 +51,7 @@ Trans.prior = ones(1,11).*(1/11);
 OutputsLinCheck = CreateOutputs(OutputsLinCheck,1,x,modelFun,List,Surveys,Values,Trans);
 clearvars -except Outputs List Surveys Values OutputsLinCheck 
 %%
-% Other indices are done identically
+% !!! Other indices are done identically !!!
 end
 
 function Outputs = CreateOutputs(Outputs,nr,xIn,modelFun,List,Surveys,Values,Trans)
