@@ -9,7 +9,8 @@ for yDepen = 1:maxDepen
     str = sprintf('      Running dependent = %d %s ',yDepen, char(List.Dependent(yDepen)));
     disp(str)
     y = Surveys.(genvarname([char(List.Dependent(yDepen))]));
-    %% Create marginal values
+    
+    %% Create marginal values Y*
     ds = dataset(y);
     [~,~,~,wij] = Morans(Surveys.Longitude_Residence,Surveys.Lattitude_Residence,1,y,1);
     Auto = zeros(1280,1);
@@ -44,7 +45,7 @@ for yDepen = 1:maxDepen
     end
     [~,outsModel,statsModel] = anovan(ds.InBetween,{ds.Age,ds.Income,ds.Education},'sstype',3,...
         'model','linear','continuous',[1,2,3],'display', 'off',...
-        'varnames', {'Age','Income','Education'}); % STEP 1a
+        'varnames', {'Age','Income','Education'}); 
     outs = outsModel(1,1:7);
     outs(2,1:7) = outsAuto(2,1:7);
     outs(3:7,1:7) = outsModel(2:6,1:7);
@@ -55,13 +56,13 @@ for yDepen = 1:maxDepen
     statsModel.resid = reshape(statsModel.resid,length(statsModel.resid),1);
     %% clear Autocorrelations and reshape residuals
     yRes = statsModel.resid;%unexplained variation by the model above
-    %Scale y
     if min(yRes) <min(y)
         yRes = yRes + (min(y)-(min(yRes)));
     end
     yRes =  ((yRes-min(yRes))./(range(yRes./range(y))))+min(yRes);
     CoVar.(genvarname([char(List.Dependent(yDepen))])) = outs;
-    %% regressions
+    
+    %% regressions STEP 1
     RegressionOuts = dataset({'Dummy';'Dummy'},'Varnames',char('Independent'));
     RegressionOuts.Function = {'Dummy';'Dummy'};
     RegressionOuts.RSquare =  [NaN;NaN];
@@ -72,7 +73,7 @@ for yDepen = 1:maxDepen
     RegressionOuts.P_Constant = [NaN;NaN];
     RegressionOuts.P_B2 = [NaN;NaN];
     RegressionOuts.P_B3 = [NaN;NaN];
-    for xIndepen = 20:maxIndepen
+    for xIndepen = 1:maxIndepen
         display(List.Independent(xIndepen))
         x = Surveys.(genvarname([char(List.Independent(xIndepen))]));
         for func = 1:1:8
@@ -90,14 +91,14 @@ for yDepen = 1:maxDepen
             RegressionOuts.P_B2(outfac,1) =Outs.Beta(8);
             RegressionOuts.P_B3(outfac,1) = Outs.Beta(9);
         end
-        %Single Variable Log Lin check for factor significance and distance
-        %choice
+        %Single Variable Log Linear function for factor significance and distance
+        %choice; STEP 1a (for logistic reasons put after 1b)
         [~,outsCheck,statsCheck] = anovan(yRes,{log10(x+1)},'sstype',1,...
             'model','linear','continuous',[1],'display', 'off',...
-            'varnames', {'CrossCheck'});
+            'varnames', {'LogLinearSigni'});
         facout = ((xIndepen-1).*10)+1;
         RegressionOuts.Independent(facout,1) = {List.Independent(xIndepen)};
-        RegressionOuts.Function(facout,1) = {'Crosscheck'};
+        RegressionOuts.Function(facout,1) = {'LogLinearSigni'};
         RegressionOuts.RSquare(facout,1) =  cell2mat(outsCheck(2,6));
         RegressionOuts.AIC (facout,1) = -999;
         RegressionOuts.Constant(facout,1) = statsCheck.coeffs(1);
